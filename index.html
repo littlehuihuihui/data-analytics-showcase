@@ -641,23 +641,59 @@
 
       <!-- 案例3：0播放时长 -->
       <article class="case-block" id="case-zero-play" data-track="ott">
-        <h3>0播放时长 · 双重根因（路径 + 埋点）</h3>
-        <p><strong style="color:var(--text)">场景</strong>：用户进入点播产品线但播放时长为0。</p>
-        <p><strong style="color:var(--text)">根因</strong>：① 页面路径——进入点播未点击播放；② 埋点——播放后断网/关机，结束日志未上报，时长记0。</p>
+        <h3>0播放时长 · 双重根因诊断</h3>
+        <p><strong style="color:var(--text)">场景</strong>：后台有用户进入点播产品线但播放时长为 0。需要定位是用户没看，还是数据没上报。</p>
+        <p class="case-section-title">&gt; 思维路径</p>
+        <p style="color:var(--muted);font-size:0.88rem;margin:0 0 0.5rem;"><strong style="color:var(--text)">步骤1：漏斗拆解</strong><br />开机用户 → 进入 Launcher 界面 → 点击模块 → 跳转对应界面 → 播放 / 未播放</p>
+        <p style="color:var(--muted);font-size:0.88rem;margin:0 0 0.5rem;"><strong style="color:var(--text)">步骤2：定位根因一（产品逻辑层）</strong><br />Launcher 界面中不同模块行为不同——部分模块进入后自动拉起播放，部分不自动拉起。进入不自动拉起的模块时，用户停留在界面但未触发播放，播放时长为 0。</p>
+        <p style="color:var(--muted);font-size:0.88rem;margin:0 0 0.75rem;"><strong style="color:var(--text)">步骤3：定位根因二（数据采集层）</strong><br />即使用户触发了播放，若播放后断网或关机，结束日志未上报到后台，播放时长同样会被记为 0。</p>
+        <p class="case-section-title">&gt; 根因总结</p>
+        <ul style="color:var(--muted);font-size:0.88rem;padding-left:1.2rem;margin:0.35rem 0 0.75rem;">
+          <li><strong style="color:var(--text)">根因一</strong>：Launcher 模块的自动拉起机制不一致，属于<strong style="color:var(--text)">产品逻辑</strong>问题</li>
+          <li><strong style="color:var(--text)">根因二</strong>：播放结束日志在异常退出时丢失，属于<strong style="color:var(--text)">埋点采集</strong>问题</li>
+        </ul>
+        <p class="case-section-title">&gt; 影响</p>
+        <p style="color:var(--muted);font-size:0.88rem;">两个根因叠加，使「播放时长为 0」的用户占比偏高，影响活跃指标准确性，也影响后续合作方关于「按有播放用户结算」口径的讨论。</p>
         <div class="chart-wrap">
-          <svg viewBox="0 0 360 160" width="100%" height="160">
-            <text x="10" y="18" fill="#9CA3AF" font-size="10" font-family="JetBrains Mono">行为漏斗（示意）</text>
-            <rect x="20" y="40" width="70" height="28" rx="4" fill="#1E3A5F" /><text x="38" y="58" fill="#E5E7EB" font-size="10">开机</text>
-            <text x="100" y="55" fill="#00D4FF">→</text>
-            <rect x="120" y="40" width="90" height="28" rx="4" fill="#1E3A5F" /><text x="128" y="58" fill="#E5E7EB" font-size="10">进入点播</text>
-            <text x="220" y="55" fill="#00D4FF">→</text>
-            <rect x="240" y="25" width="100" height="26" rx="4" fill="#00D4FF" /><text x="252" y="42" fill="#0A0E17" font-size="10">有播放</text>
-            <rect x="240" y="70" width="100" height="26" rx="4" fill="#EF4444" /><text x="248" y="87" fill="#fff" font-size="10">0播放时长</text>
-            <text x="250" y="115" fill="#EF4444" font-size="8">路径未播放</text>
-            <text x="250" y="128" fill="#EF4444" font-size="8">埋点未上报结束</text>
+          <svg viewBox="0 0 300 310" width="100%" height="310" aria-label="纵向漏斗：四层主干至拉起分支与0播放双根因">
+            <text x="110" y="14" fill="#9CA3AF" font-size="9" font-family="JetBrains Mono">纵向漏斗（示意）</text>
+            <!-- 层1 开机用户 -->
+            <polygon points="30,22 270,22 250,48 50,48" fill="#1E3A5F" stroke="#374151" />
+            <text x="150" y="40" fill="#E5E7EB" font-size="10" text-anchor="middle">开机用户</text>
+            <!-- 层2 进入Launcher -->
+            <polygon points="50,54 250,54 235,78 65,78" fill="#1E3A5F" stroke="#374151" />
+            <text x="150" y="71" fill="#E5E7EB" font-size="10" text-anchor="middle">进入 Launcher</text>
+            <!-- 层3 点击模块 -->
+            <polygon points="70,84 230,84 218,108 82,108" fill="#1E3A5F" stroke="#374151" />
+            <text x="150" y="100" fill="#E5E7EB" font-size="10" text-anchor="middle">点击模块</text>
+            <!-- 层4 自动拉起 / 未拉起 -->
+            <polygon points="85,114 145,114 140,138 90,138" fill="#00D4FF" opacity="0.9" />
+            <text x="115" y="131" fill="#0A0E17" font-size="9" text-anchor="middle">自动拉起</text>
+            <polygon points="155,114 215,114 210,138 160,138" fill="#1E3A5F" stroke="#374151" />
+            <text x="185" y="131" fill="#E5E7EB" font-size="9" text-anchor="middle">未拉起</text>
+            <line x1="150" y1="108" x2="115" y2="114" stroke="#6B7280" stroke-width="1" />
+            <line x1="150" y1="108" x2="185" y2="114" stroke="#6B7280" stroke-width="1" />
+            <!-- 层5 有播放 / 0播放 -->
+            <polygon points="90,148 135,148 130,175 95,175" fill="#10B981" />
+            <text x="112" y="166" fill="#0A0E17" font-size="9" text-anchor="middle">有播放</text>
+            <polygon points="165,148 210,148 205,175 170,175" fill="#EF4444" stroke="#FCA5A5" />
+            <text x="187" y="166" fill="#fff" font-size="9" text-anchor="middle">0播放</text>
+            <line x1="115" y1="138" x2="112" y2="148" stroke="#6B7280" /><line x1="185" y1="138" x2="187" y2="148" stroke="#6B7280" />
+            <!-- 0播放 延伸诊断 -->
+            <line x1="187" y1="175" x2="187" y2="188" stroke="#EF4444" stroke-width="1.5" />
+            <line x1="187" y1="188" x2="95" y2="200" stroke="#EF4444" stroke-width="1.2" />
+            <line x1="187" y1="188" x2="255" y2="200" stroke="#EF4444" stroke-width="1.2" />
+            <rect x="8" y="202" width="130" height="36" rx="4" fill="rgba(239,68,68,0.15)" stroke="#EF4444" />
+            <text x="73" y="218" fill="#EF4444" font-size="8" text-anchor="middle">产品逻辑问题</text>
+            <text x="73" y="230" fill="#EF4444" font-size="7" text-anchor="middle">（自动拉起缺失）</text>
+            <rect x="162" y="202" width="130" height="36" rx="4" fill="rgba(239,68,68,0.15)" stroke="#EF4444" />
+            <text x="227" y="218" fill="#EF4444" font-size="8" text-anchor="middle">埋点问题</text>
+            <text x="227" y="230" fill="#EF4444" font-size="7" text-anchor="middle">（结束日志丢失）</text>
+            <text x="150" y="258" fill="#9CA3AF" font-size="8" text-anchor="middle">自上而下逐层收窄；0播放 分支接双根因</text>
           </svg>
+          <div class="chart-legend"><span><i class="legend-dot" style="background:#10B981"></i>有播放</span><span><i class="legend-dot" style="background:#EF4444"></i>0播放 + 红色诊断</span></div>
         </div>
-        <div class="case-tags"><span>#漏斗分析</span><span>#埋点诊断</span><span>#用户路径</span></div>
+        <div class="case-tags"><span>#漏斗分析</span><span>#产品逻辑诊断</span><span>#埋点诊断</span></div>
       </article>
 
       <!-- 案例4：120万低质量 -->
@@ -680,19 +716,52 @@
       <!-- 案例5：三方数据打通 -->
       <article class="case-block" id="case-triple-data" data-track="ott">
         <h3>三方数据打通 · CRM / 设备库 / APK</h3>
-        <p>新业务线吸收机顶盒教训，推动 CRM、设备库、APK 三方标识统一（手机/SN/MAC）。历时约5个月，无明确负责人、多方推诿与资源受限下仍逐项打通接口。</p>
+        <p>新业务线吸收机顶盒教训，推动 CRM、设备库、APK 三方标识统一（手机/SN/MAC）。</p>
+        <p><strong style="color:var(--text)">过程</strong>：历时约 5 个月，在无明确负责人、多方推诿与资源受限的情况下，仍逐项推动各方打通接口链路。</p>
+        <p class="case-section-title">&gt; 三方数据详情</p>
+        <table class="framework-table" style="max-width:720px;font-size:0.82rem;">
+          <thead><tr><th>数据源</th><th>唯一标识</th><th>存储内容</th></tr></thead>
+          <tbody>
+            <tr><td>CRM（移动）</td><td>手机号</td><td>用户信息（开户、套餐、优惠等）</td></tr>
+            <tr><td>设备库（杭研）</td><td>SN码</td><td>设备信息、设备基础软件功能使用情况（闹钟、日历等）</td></tr>
+            <tr><td>APK（银河）</td><td>MAC地址</td><td>用户播放行为、屏幕点击行为</td></tr>
+          </tbody>
+        </table>
+        <p class="case-section-title">&gt; 打通逻辑</p>
+        <ul style="color:var(--muted);font-size:0.88rem;padding-left:1.2rem;margin:0.25rem 0 0.75rem;">
+          <li><strong style="color:var(--text)">CRM ↔ 设备库</strong>：通过手机号与 SN 码的绑定关系关联</li>
+          <li><strong style="color:var(--text)">设备库 ↔ APK</strong>：通过 SN 码与 MAC 地址的设备映射关联</li>
+          <li><strong style="color:var(--text)">最终目标</strong>：一个用户（手机号）→ 一台设备（SN码）→ 所有行为（MAC地址）的全链路打通</li>
+          <li><strong style="color:var(--text)">统一用户标识为 SN 码</strong></li>
+        </ul>
+        <p class="case-section-title">&gt; 数据血缘追溯：统一标识落地过程</p>
+        <p style="color:var(--muted);font-size:0.88rem;margin:0.35rem 0;"><strong style="color:var(--text)">1. 发现问题：</strong>APK 业务表无 SN 字段 → 追溯采集表（日志表），SN 字段位置存在但数据为空 → 追溯 PB 日志，确认该字段未做埋点。</p>
+        <p style="color:var(--muted);font-size:0.88rem;margin:0.35rem 0;"><strong style="color:var(--text)">2. 治本方案：</strong>提需求更新 APK 版本 → 新增 SN 码埋点 → 数据自动存入采集表 → 再提需求将 SN 码从采集表写入业务表 → 校验数据准确性。</p>
+        <p style="color:var(--muted);font-size:0.88rem;margin:0.35rem 0;"><strong style="color:var(--text)">3. 兜底方案：</strong>沉默用户未更新 APK 版本，SN 码仍为空。通过三方映射反向补全——移动提供手机号+SN码、杭研提供 SN 码+MAC、银河提供 MAC+手机号，三表联查能关联的补全、无法关联的标记为未知。</p>
+        <p style="color:var(--muted);font-size:0.88rem;margin:0.35rem 0;"><strong style="color:var(--text)">4. 方法论沉淀：</strong>后续新业务线可提前确定统一标识、提前检查各表关联字段是否完备，从源头避免此类问题。</p>
+        <p style="color:var(--muted);font-size:0.88rem;margin:0.5rem 0 0.75rem;">这部分是数据血缘能力在数据工程中的完整体现——从应用层异常追溯到采集层根因，推动技术侧修复，并设计兜底方案覆盖无法修复的历史数据。</p>
         <p class="case-section-title">&gt; 可量化结果</p>
         <p><span class="result-pill positive">自动化关联替代手工对账 · 效率约+90%</span> · 支持设备套现预警</p>
         <div class="chart-wrap">
-          <svg viewBox="0 0 340 130" width="100%" height="130">
-            <rect x="20" y="30" width="70" height="40" rx="4" fill="#1E3A5F" /><text x="38" y="55" fill="#E5E7EB" font-size="10">CRM</text>
-            <rect x="135" y="30" width="70" height="40" rx="4" fill="#1E3A5F" /><text x="145" y="55" fill="#E5E7EB" font-size="10">设备库</text>
-            <rect x="250" y="30" width="70" height="40" rx="4" fill="#1E3A5F" /><text x="265" y="55" fill="#E5E7EB" font-size="10">APK</text>
-            <path d="M90 50 L135 50" stroke="#00D4FF" /><path d="M205 50 L250 50" stroke="#00D4FF" />
-            <path d="M55 70 L170 95 L285 70" stroke="#00D4FF" fill="none" />
-            <rect x="100" y="100" width="140" height="22" rx="4" fill="#00D4FF" /><text x="118" y="115" fill="#0A0E17" font-size="10" font-family="JetBrains Mono">统一用户标识</text>
+          <svg viewBox="0 0 380 158" width="100%" height="158" aria-label="三方架构与关联字段">
+            <rect x="12" y="18" width="108" height="48" rx="4" fill="#1E3A5F" />
+            <text x="20" y="34" fill="#00D4FF" font-size="9" font-family="JetBrains Mono">CRM</text>
+            <text x="20" y="48" fill="#E5E7EB" font-size="8">手机号/用户信息</text>
+            <rect x="136" y="18" width="108" height="48" rx="4" fill="#1E3A5F" />
+            <text x="144" y="34" fill="#00D4FF" font-size="9" font-family="JetBrains Mono">设备库</text>
+            <text x="144" y="48" fill="#E5E7EB" font-size="8">SN码/设备信息+闹钟日历等</text>
+            <rect x="260" y="18" width="108" height="48" rx="4" fill="#1E3A5F" />
+            <text x="268" y="34" fill="#00D4FF" font-size="9" font-family="JetBrains Mono">APK</text>
+            <text x="268" y="48" fill="#E5E7EB" font-size="8">MAC地址/播放+点击行为</text>
+            <path d="M120 42 L136 42" stroke="#00D4FF" stroke-width="2" />
+            <text x="118" y="14" fill="#9CA3AF" font-size="7" font-family="JetBrains Mono">手机号↔SN码</text>
+            <path d="M244 42 L260 42" stroke="#00D4FF" stroke-width="2" />
+            <text x="242" y="14" fill="#9CA3AF" font-size="7" font-family="JetBrains Mono">SN码↔MAC地址</text>
+            <path d="M66 66 L190 88 L314 66" stroke="#00D4FF" fill="none" stroke-width="1.2" />
+            <rect x="95" y="100" width="190" height="28" rx="4" fill="#00D4FF" />
+            <text x="190" y="118" fill="#0A0E17" font-size="10" font-family="JetBrains Mono" text-anchor="middle">统一用户标识：SN码</text>
           </svg>
-          <div class="chart-legend"><span>连线表示关联字段汇聚</span></div>
+          <div class="chart-legend"><span>连线为关联字段</span><span><i class="legend-dot" style="background:#00D4FF"></i>汇聚 SN 主键</span></div>
         </div>
         <div class="case-tags"><span>#数据工程</span><span>#跨团队协作</span><span>#项目管理</span></div>
       </article>
@@ -726,19 +795,65 @@
 
       <!-- 案例8：一键登录 -->
       <article class="case-block" id="case-oneclick" data-track="ott">
-        <h3>一键登录 · 日活提升</h3>
-        <p>对比游客与登录用户行为，定位登录为活跃瓶颈；推动「自动拉起+一键登录」上线并跟踪验证，方案固化为新用户激活标准流程。</p>
-        <p class="case-section-title">&gt; 可量化结果</p>
-        <p><span class="result-pill positive">日活 +200%</span></p>
+        <h3>一键登录 · 日活提升200%（含双重漏斗分析）</h3>
+        <p class="case-section-title">&gt; 效果高亮</p>
+        <p><span class="result-pill positive">+200%</span></p>
+        <p class="case-section-title">&gt; 过程</p>
+        <p style="color:var(--muted);font-size:0.88rem;">对比游客与登录用户行为 → 定位登录为活跃瓶颈 → 主动提出「自动拉起+一键登录」方案 → 推动上线 → 持续跟踪验证效果。</p>
+        <p class="case-section-title">&gt; 双重漏斗对比</p>
+        <p style="color:var(--text);font-size:0.9rem;margin:0.5rem 0 0.25rem;"><strong>第一层漏斗</strong>：自动拉起上线前后（APK激活 → 设备开机）</p>
+        <table class="framework-table" style="max-width:520px;font-size:0.85rem;">
+          <thead><tr><th>阶段</th><th>APK激活后设备开机比例</th></tr></thead>
+          <tbody>
+            <tr><td>自动拉起上线前</td><td>约40%</td></tr>
+            <tr><td>自动拉起上线后</td><td>约90%</td></tr>
+          </tbody>
+        </table>
+        <p style="color:var(--muted);font-size:0.82rem;margin:0.35rem 0 0.75rem;">说明：上线前大量用户激活了APK但设备未成功开机，自动拉起机制解决了设备从激活到开机的转化瓶颈。</p>
+        <p style="color:var(--text);font-size:0.9rem;margin:0.5rem 0 0.25rem;"><strong>第二层漏斗</strong>：一键登录上线前后（开机 → 手机号登录）</p>
+        <table class="framework-table" style="max-width:520px;font-size:0.85rem;">
+          <thead><tr><th>阶段</th><th>手机号登录 : 游客登录</th></tr></thead>
+          <tbody>
+            <tr><td>一键登录上线前</td><td>约50% : 50%</td></tr>
+            <tr><td>一键登录上线后</td><td>约95% : 5%</td></tr>
+          </tbody>
+        </table>
+        <p style="color:var(--muted);font-size:0.82rem;margin:0.35rem 0 0.75rem;">说明：上线前一半用户以游客身份使用，无法做个性化运营和精准触达。上线后95%用户完成手机号登录，用户可识别、可运营。</p>
+        <p class="case-section-title">&gt; 叠加效果</p>
+        <p style="color:var(--muted);font-size:0.88rem;">自动拉起（40%→90%）× 一键登录（50%→95%），日活最终提升200%。</p>
+        <p class="case-section-title">&gt; 结果</p>
+        <p style="color:var(--muted);font-size:0.88rem;">方案固化为新用户激活标准流程。</p>
         <div class="chart-wrap">
-          <svg viewBox="0 0 280 120" width="100%" height="120">
-            <line x1="40" y1="100" x2="240" y2="100" stroke="#374151" />
-            <rect x="50" y="55" width="50" height="45" fill="#1E3A5F" /><text x="52" y="115" fill="#9CA3AF" font-size="9">优化前</text>
-            <rect x="170" y="25" width="50" height="75" fill="#10B981" /><text x="168" y="115" fill="#9CA3AF" font-size="9">优化后</text>
-            <text x="175" y="20" fill="#10B981" font-size="11" font-family="JetBrains Mono">+200%</text>
+          <svg viewBox="0 0 300 248" width="100%" height="248" aria-label="纵向双层漏斗：每层左优化前浅蓝、右优化后亮绿">
+            <line x1="150" y1="28" x2="150" y2="220" stroke="#374151" stroke-dasharray="4 4" />
+            <text x="75" y="14" fill="#7dd3fc" font-size="9" text-anchor="middle" font-family="JetBrains Mono">优化前（浅蓝）</text>
+            <text x="225" y="14" fill="#10B981" font-size="9" text-anchor="middle" font-family="JetBrains Mono">优化后（亮绿）</text>
+            <!-- 第一层漏斗 -->
+            <text x="150" y="30" fill="#E5E7EB" font-size="10" text-anchor="middle">APK激活→设备开机</text>
+            <polygon points="20,38 150,38 150,58 70,58" fill="#38bdf8" fill-opacity="0.55" stroke="#7dd3fc" />
+            <text x="95" y="52" fill="#0A0E17" font-size="9" text-anchor="middle">40%</text>
+            <polygon points="150,34 280,34 280,72 150,72" fill="#10B981" stroke="#34d399" />
+            <text x="215" y="56" fill="#0A0E17" font-size="9" text-anchor="middle">90%</text>
+            <text x="95" y="70" fill="#9CA3AF" font-size="7" text-anchor="middle">优化前 40%</text>
+            <text x="215" y="78" fill="#9CA3AF" font-size="7" text-anchor="middle">优化后 90%</text>
+            <!-- 第二层漏斗 -->
+            <text x="150" y="96" fill="#E5E7EB" font-size="10" text-anchor="middle">开机→手机号登录</text>
+            <rect x="22" y="102" width="52" height="48" fill="#38bdf8" fill-opacity="0.55" stroke="#7dd3fc" />
+            <rect x="76" y="102" width="52" height="48" fill="#1E3A5F" stroke="#4b5563" />
+            <text x="48" y="128" fill="#0A0E17" font-size="8" text-anchor="middle">手机50%</text>
+            <text x="102" y="128" fill="#E5E7EB" font-size="8" text-anchor="middle">游客50%</text>
+            <text x="74" y="162" fill="#9CA3AF" font-size="7" text-anchor="middle">优化前 50%:50%</text>
+            <rect x="152" y="102" width="92" height="62" fill="#10B981" stroke="#34d399" />
+            <rect x="246" y="118" width="28" height="46" fill="#374151" stroke="#6b7280" />
+            <text x="198" y="138" fill="#0A0E17" font-size="8" text-anchor="middle">手机95%</text>
+            <text x="260" y="138" fill="#E5E7EB" font-size="8" text-anchor="middle">游客5%</text>
+            <text x="215" y="174" fill="#9CA3AF" font-size="7" text-anchor="middle">优化后 95%:5%</text>
+            <text x="150" y="200" fill="#00D4FF" font-size="9" text-anchor="middle" font-family="JetBrains Mono">纵向两层 · 左右高度差体现转化提升</text>
+            <text x="150" y="218" fill="#9CA3AF" font-size="8" text-anchor="middle">左半幅浅蓝=优化前 · 右半幅亮绿=优化后</text>
           </svg>
+          <div class="chart-legend"><span><i class="legend-dot" style="background:#38bdf8"></i>优化前（浅蓝）</span><span><i class="legend-dot" style="background:#10B981"></i>优化后（亮绿）</span></div>
         </div>
-        <div class="case-tags"><span>#对比分析</span><span>#产品优化</span><span>#策略验证</span></div>
+        <div class="case-tags"><span>#对比分析</span><span>#漏斗分析</span><span>#产品优化</span><span>#策略验证</span></div>
       </article>
 
       <!-- 案例9：业务见顶+流失 -->
@@ -916,12 +1031,12 @@
   const CASE_SUMMARIES = {
     "case-220w": { title: "220万虚假用户", line: "口径对齐：移动登记 vs 银河激活设备。", hl: "活跃率 ~10% → ~22%" },
     "case-huawei40": { title: "华为40万异常", line: "同步故障导致误标销户，加工层定位。", hl: "恢复 + 月度校验" },
-    "case-zero-play": { title: "0播放时长双重根因", line: "路径未播放 + 埋点未上报结束日志。", hl: "漏斗定位" },
+    "case-zero-play": { title: "0播放时长双重根因", line: "Launcher 自动拉起不一致 + 异常退出埋点丢失。", hl: "产品+埋点双根因" },
     "case-120w-low": { title: "120万低质量激活", line: "仅开机一次用户识别与处置。", hl: "180万中约120万" },
-    "case-triple-data": { title: "三方数据打通", line: "CRM/设备库/APK 统一标识。", hl: "效率约 +90%" },
+    "case-triple-data": { title: "三方数据打通", line: "手机号↔SN↔MAC 全链路关联。", hl: "效率约 +90%" },
     "case-bi-dashboard": { title: "BI看板体系", line: "8看板 +15 自动化 + 自助客服查询。", hl: "Datart + ClickHouse" },
     "case-python-auto": { title: "Python报表自动化", line: "全流程脚本化导出。", hl: "4h → 10min" },
-    "case-oneclick": { title: "一键登录", line: "登录瓶颈识别与方案落地。", hl: "日活 +200%" },
+    "case-oneclick": { title: "一键登录+自动拉起", line: "双漏斗：开机转化与登录转化叠加。", hl: "日活 +200%" },
     "case-churn-warning": { title: "业务见顶与流失预估", line: "三类特征分层，第13月高峰。", hl: "提前约12个月" },
     "case-zero-revenue": { title: "0播放收入影响", line: "三口径测算，维持结算口径。", hl: "避免收入损失" },
     "case-preference-tags": { title: "兴趣标签体系", line: "行为占比冷启动分群。", hl: "千人千面初步" },
