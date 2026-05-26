@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>口径对齐 · 桑基图</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "PingFang SC", "Inter", system-ui, -apple-system, sans-serif;
+      background: #F5F7FB;
+      color: #111827;
+      line-height: 1.5;
+      padding: 1.25rem;
+      min-height: 100vh;
+    }
+    .panel {
+      max-width: 960px;
+      margin: 0 auto;
+      background: #FFFFFF;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.04);
+      padding: 1.5rem;
+    }
+    .panel-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #1E3A8A;
+      margin-bottom: 0.25rem;
+    }
+    .panel-sub {
+      font-size: 0.82rem;
+      color: #6B7280;
+      margin-bottom: 1.25rem;
+    }
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+    @media (max-width: 640px) {
+      .kpi-row { grid-template-columns: 1fr; }
+      body { padding: 0.75rem; }
+      .panel { padding: 1rem; }
+    }
+    .kpi-card {
+      background: #FFFFFF;
+      border: 1px solid #E5E7EB;
+      border-radius: 16px;
+      padding: 1rem 1.1rem;
+      box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
+      text-align: center;
+    }
+    .kpi-card.highlight {
+      border: 2px solid transparent;
+      background: linear-gradient(#fff, #fff) padding-box,
+        linear-gradient(135deg, #10B981, #34D399) border-box;
+      position: relative;
+    }
+    .kpi-card.highlight::after {
+      content: "↑";
+      position: absolute;
+      top: 0.65rem;
+      right: 0.75rem;
+      color: #10B981;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+    .kpi-label {
+      display: block;
+      font-size: 0.75rem;
+      color: #6B7280;
+      margin-bottom: 0.35rem;
+    }
+    .kpi-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #111827;
+      line-height: 1.15;
+    }
+    .kpi-value.blue { color: #1E3A8A; }
+    .kpi-value.green { color: #10B981; }
+    .kpi-value.purple { color: #8B5CF6; }
+    .kpi-note {
+      font-size: 0.75rem;
+      color: #6B7280;
+      margin-top: 0.35rem;
+    }
+    .kpi-card.highlight .kpi-note { color: #10B981; }
+    .chart-wrap {
+      background: #F5F7FB;
+      border-radius: 16px;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    #sankey-chart {
+      width: 100%;
+      height: 400px;
+    }
+    .chart-loading {
+      height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6B7280;
+      font-size: 0.85rem;
+    }
+    .notes {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+    @media (max-width: 640px) {
+      .notes { grid-template-columns: 1fr; }
+    }
+    .note-box {
+      background: #F5F7FB;
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+      font-size: 0.8rem;
+      color: #4B5563;
+      line-height: 1.55;
+      border: 1px solid #E5E7EB;
+    }
+    .note-box strong {
+      display: block;
+      font-size: 0.75rem;
+      color: #1E3A8A;
+      margin-bottom: 0.35rem;
+      font-weight: 600;
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem 1rem;
+      margin-top: 0.85rem;
+      font-size: 0.72rem;
+      color: #6B7280;
+    }
+    .legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
+    .legend i {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <h1 class="panel-title">口径修复 · 用户规模流向</h1>
+    <p class="panel-sub">从旧口径 400万 拆解至有效激活、低质量与其他差异，并还原真实活跃率</p>
+
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <span class="kpi-label">旧口径分母</span>
+        <div class="kpi-value blue">400<small style="font-size:1rem">万</small></div>
+        <div class="kpi-note">移动营业厅登记</div>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">新口径分母</span>
+        <div class="kpi-value green">180<small style="font-size:1rem">万</small></div>
+        <div class="kpi-note">银河激活设备</div>
+      </div>
+      <div class="kpi-card highlight">
+        <span class="kpi-label">真实活跃率</span>
+        <div class="kpi-value purple">22<small style="font-size:1rem">%</small></div>
+        <div class="kpi-note">较旧口径约10%修复</div>
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <div id="sankey-chart">
+        <div class="chart-loading" id="chart-loading">图表加载中…</div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <span><i style="background:#1E3A8A"></i>旧口径</span>
+      <span><i style="background:#10B981"></i>有效激活</span>
+      <span><i style="background:#F97316"></i>仅开机一次</span>
+      <span><i style="background:#9CA3AF"></i>其他差异</span>
+      <span><i style="background:#8B5CF6"></i>真实活跃</span>
+    </div>
+
+    <div class="notes" style="margin-top:1rem">
+      <div class="note-box">
+        <strong>口径定义</strong>
+        旧口径=移动营业厅登记（手机号，意向用户）；新口径=银河设备首次PB日志（MAC，行为激活）。
+      </div>
+      <div class="note-box">
+        <strong>差异诊断</strong>
+        400万-180万=220万差异中，约120万为「仅开机一次」低质量用户；其余为未激活/未绑定等设备映射差异。
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.5.0/echarts.min.js"
+    onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js'"></script>
+  <script>
+(function () {
+  var chartFont = '"PingFang SC", "Inter", system-ui, sans-serif';
+  var NODE = {
+    src: "旧口径 400万",
+    act: "有效激活设备 180万",
+    low: "仅开机一次 120万",
+    other: "其他差异 100万",
+    end: "真实活跃用户 22%"
+  };
+
+  function getOption() {
+    return {
+      backgroundColor: "transparent",
+      textStyle: { fontFamily: chartFont },
+      tooltip: {
+        trigger: "item",
+        backgroundColor: "#FFFFFF",
+        borderColor: "#E5E7EB",
+        borderWidth: 1,
+        textStyle: { color: "#374151", fontSize: 12, fontFamily: chartFont },
+        formatter: function (p) {
+          if (p.dataType === "edge") {
+            return p.data.source + " → " + p.data.target + "<br/><b>" + p.data.value + " 万</b>";
+          }
+          return p.name.replace(/ /g, "<br/>");
+        }
+      },
+      series: [{
+        type: "sankey",
+        left: "4%",
+        right: "8%",
+        top: 24,
+        bottom: 16,
+        nodeWidth: 18,
+        nodeGap: 14,
+        layoutIterations: 32,
+        emphasis: { focus: "adjacency" },
+        lineStyle: { curveness: 0.5, opacity: 0.55 },
+        label: {
+          color: "#374151",
+          fontSize: 11,
+          fontFamily: chartFont,
+          formatter: function (p) { return p.name.replace(/ /g, "\n"); }
+        },
+        data: [
+          { name: NODE.src, itemStyle: { color: "#1E3A8A" }, depth: 0 },
+          { name: NODE.act, itemStyle: { color: "#10B981" }, depth: 1 },
+          { name: NODE.low, itemStyle: { color: "#F97316" }, depth: 1 },
+          { name: NODE.other, itemStyle: { color: "#9CA3AF" }, depth: 1 },
+          { name: NODE.end, itemStyle: { color: "#8B5CF6" }, depth: 2 }
+        ],
+        links: [
+          { source: NODE.src, target: NODE.act, value: 180, lineStyle: { color: "rgba(16,185,129,0.5)" } },
+          { source: NODE.src, target: NODE.low, value: 120, lineStyle: { color: "rgba(249,115,22,0.5)" } },
+          { source: NODE.src, target: NODE.other, value: 100, lineStyle: { color: "rgba(156,163,175,0.55)" } },
+          { source: NODE.act, target: NODE.end, value: 180, lineStyle: { color: "rgba(139,92,246,0.55)" } }
+        ]
+      }]
+    };
+  }
+
+  function init() {
+    var el = document.getElementById("sankey-chart");
+    var loading = document.getElementById("chart-loading");
+    if (typeof echarts === "undefined") {
+      setTimeout(init, 150);
+      return;
+    }
+    if (loading) loading.remove();
+    var chart = echarts.init(el);
+    chart.setOption(getOption());
+    window.addEventListener("resize", function () { chart.resize(); });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();
+  </script>
+</body>
+</html>

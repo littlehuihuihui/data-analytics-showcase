@@ -6,7 +6,9 @@
   <title>麦焕晖 · 数据分析能力数字展馆</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" /></noscript>
   <style>
     /* ========== 全局变量与重置 ========== */
     :root {
@@ -419,6 +421,166 @@
       vertical-align: middle;
     }
 
+    /* ========== 220万案例 · 可量化结果（桑基图 · 黑色高亮） ========== */
+    .metrics-highlight-panel {
+      margin: 1rem 0;
+      padding: 1.5rem;
+      border-radius: 16px;
+      font-family: "PingFang SC", "Inter", system-ui, -apple-system, sans-serif;
+      background: #000000;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      color: #E5E7EB;
+    }
+    .metrics-highlight-panel .mhp-inner {
+      background: transparent;
+      border-radius: 16px;
+      padding: 0;
+      box-shadow: none;
+    }
+    .metrics-highlight-panel .mhp-title {
+      margin: 0 0 0.25rem;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #F1F5F9;
+    }
+    .metrics-highlight-panel .mhp-subtitle {
+      margin: 0 0 1.1rem;
+      font-size: 0.82rem;
+      color: #9CA3AF;
+    }
+    .metrics-highlight-panel .mhp-kpi-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.1rem;
+    }
+    @media (max-width: 640px) {
+      .metrics-highlight-panel .mhp-kpi-row { grid-template-columns: 1fr; }
+      .metrics-highlight-panel { padding: 1rem; }
+      .metrics-highlight-panel .mhp-inner { padding: 1rem; }
+    }
+    .metrics-highlight-panel .mhp-kpi {
+      text-align: center;
+      padding: 1rem;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    }
+    .metrics-highlight-panel .mhp-kpi.highlight {
+      border: 2px solid transparent;
+      background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)) padding-box,
+        linear-gradient(135deg, #10B981, #34D399) border-box;
+      position: relative;
+    }
+    .metrics-highlight-panel .mhp-kpi.highlight::after {
+      content: "↑";
+      position: absolute;
+      top: 0.6rem;
+      right: 0.7rem;
+      color: #10B981;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+    .metrics-highlight-panel .mhp-kpi-label {
+      display: block;
+      font-size: 0.75rem;
+      color: #9CA3AF;
+      margin-bottom: 0.35rem;
+    }
+    .metrics-highlight-panel .mhp-kpi-value {
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1.15;
+      color: #F9FAFB;
+    }
+    .metrics-highlight-panel .mhp-kpi-value.blue { color: #60A5FA; }
+    .metrics-highlight-panel .mhp-kpi-value.green { color: #34D399; }
+    .metrics-highlight-panel .mhp-kpi-value.purple { color: #A78BFA; }
+    .metrics-highlight-panel .mhp-kpi-delta {
+      font-size: 0.75rem;
+      color: #9CA3AF;
+      margin-top: 0.35rem;
+    }
+    .metrics-highlight-panel .mhp-kpi.highlight .mhp-kpi-delta { color: #10B981; }
+    .metrics-highlight-panel .mhp-chart-wrap {
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 16px;
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .metrics-highlight-panel .mhp-chart {
+      width: 100%;
+      height: 400px;
+      min-height: 400px;
+      position: relative;
+    }
+    .metrics-highlight-panel .mhp-chart-loading {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #9CA3AF;
+      font-size: 0.85rem;
+    }
+    .metrics-highlight-panel .mhp-chart.is-ready .mhp-chart-loading { display: none; }
+    .metrics-highlight-panel .mhp-sankey-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+      font-size: 0.72rem;
+      color: #9CA3AF;
+      margin-bottom: 0.85rem;
+    }
+    .metrics-highlight-panel .mhp-sankey-legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .metrics-highlight-panel .mhp-sankey-legend i {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      display: inline-block;
+    }
+    .metrics-highlight-panel .mhp-notes {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+    @media (max-width: 640px) {
+      .metrics-highlight-panel .mhp-notes { grid-template-columns: 1fr; }
+    }
+    .metrics-highlight-panel .mhp-note-box {
+      padding: 0.85rem 1rem;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.8rem;
+      color: #9CA3AF;
+      line-height: 1.55;
+    }
+    .metrics-highlight-panel .mhp-note-box strong {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--accent);
+      margin-bottom: 0.35rem;
+      font-weight: 600;
+    }
+    .metrics-highlight-panel .mhp-footer {
+      margin-top: 0.85rem;
+      padding-top: 0.65rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .metrics-highlight-panel .case-tags span {
+      background: rgba(0, 212, 255, 0.1);
+      color: var(--accent);
+      border: 1px solid rgba(0, 212, 255, 0.25);
+    }
+
     /* ========== 占位框 ========== */
     .placeholder-box {
       border: 2px dashed rgba(255,255,255,0.15);
@@ -599,21 +761,54 @@
           <tr><td>银河</td><td>180万</td><td>设备首次 PB 日志</td><td>MAC</td><td>行为</td></tr>
         </table>
         <p class="case-section-title">&gt; 可量化结果（高亮）</p>
-        <p><span class="result-pill">分母 400万 → 180万</span> · <span class="result-pill positive">活跃率由约10%（低估）→ 真实约22%</span></p>
-        <p style="color:var(--muted);font-size:0.88rem;">连锁：口径统一后识别约120万「仅开机一次」→ 用户质量分层；新业务线推动三方数据提前打通。</p>
-        <div class="chart-wrap">
-          <svg viewBox="0 0 320 140" width="100%" height="140" aria-label="双柱对比与活跃率示意">
-            <text x="8" y="14" fill="#9CA3AF" font-size="10" font-family="JetBrains Mono">用户规模（万）</text>
-            <line x1="30" y1="110" x2="300" y2="110" stroke="#374151" />
-            <rect x="50" y="40" width="40" height="70" fill="#1E3A5F" /><text x="55" y="125" fill="#9CA3AF" font-size="9">移动口径</text><text x="52" y="35" fill="#00D4FF" font-size="10">400</text>
-            <rect x="130" y="85" width="40" height="25" fill="#00D4FF" /><text x="128" y="125" fill="#9CA3AF" font-size="9">银河激活</text><text x="135" y="80" fill="#00D4FF" font-size="10">180</text>
-            <polyline points="200,95 240,70 280,55" fill="none" stroke="#10B981" stroke-width="2" />
-            <circle cx="200" cy="95" r="3" fill="#10B981" /><circle cx="240" cy="70" r="3" fill="#10B981" /><circle cx="280" cy="55" r="3" fill="#10B981" />
-            <text x="185" y="20" fill="#10B981" font-size="9" font-family="JetBrains Mono">活跃率修复趋势（示意）</text>
-          </svg>
-          <div class="chart-legend"><span><i class="legend-dot" style="background:#1E3A5F"></i>对比柱</span><span><i class="legend-dot" style="background:#00D4FF"></i>激活设备</span><span><i class="legend-dot" style="background:#10B981"></i>正向恢复</span></div>
+        <div class="metrics-highlight-panel">
+          <div class="mhp-inner">
+            <h4 class="mhp-title">口径修复 · 用户规模流向</h4>
+            <p class="mhp-subtitle">从旧口径 400万 拆解至有效激活、低质量与其他差异，并还原真实活跃率</p>
+            <div class="mhp-kpi-row">
+              <div class="mhp-kpi">
+                <span class="mhp-kpi-label">旧口径分母</span>
+                <div class="mhp-kpi-value blue">400<small style="font-size:1rem;font-weight:600">万</small></div>
+                <div class="mhp-kpi-delta">移动营业厅登记</div>
+              </div>
+              <div class="mhp-kpi">
+                <span class="mhp-kpi-label">新口径分母</span>
+                <div class="mhp-kpi-value green">180<small style="font-size:1rem;font-weight:600">万</small></div>
+                <div class="mhp-kpi-delta">银河激活设备</div>
+              </div>
+              <div class="mhp-kpi highlight">
+                <span class="mhp-kpi-label">真实活跃率</span>
+                <div class="mhp-kpi-value purple">22<small style="font-size:1rem;font-weight:600">%</small></div>
+                <div class="mhp-kpi-delta">较旧口径约10%修复</div>
+              </div>
+            </div>
+            <div class="mhp-chart-wrap">
+              <div id="chart-220w-metrics" class="mhp-chart" role="img" aria-label="用户规模桑基流向图">
+                <div class="mhp-chart-loading" id="chart-220w-loading">图表加载中…</div>
+              </div>
+            </div>
+            <div class="mhp-sankey-legend">
+              <span><i style="background:#1E3A8A"></i>旧口径</span>
+              <span><i style="background:#10B981"></i>有效激活</span>
+              <span><i style="background:#F97316"></i>仅开机一次</span>
+              <span><i style="background:#9CA3AF"></i>其他差异</span>
+              <span><i style="background:#8B5CF6"></i>真实活跃</span>
+            </div>
+            <div class="mhp-notes">
+              <div class="mhp-note-box">
+                <strong>口径定义</strong>
+                旧口径=移动营业厅登记（手机号，意向用户）；新口径=银河设备首次PB日志（MAC，行为激活）。
+              </div>
+              <div class="mhp-note-box">
+                <strong>差异诊断</strong>
+                400万-180万=220万差异中，约120万为「仅开机一次」低质量用户；其余为未激活/未绑定等设备映射差异。
+              </div>
+            </div>
+            <footer class="mhp-footer">
+              <div class="case-tags"><span>#口径定义</span><span>#数据源还原</span><span>#差异诊断</span></div>
+            </footer>
+          </div>
         </div>
-        <div class="case-tags"><span>#口径定义</span><span>#数据源还原</span><span>#差异诊断</span></div>
       </article>
 
       <!-- 案例2：华为40万 -->
@@ -1206,6 +1401,175 @@
 
   renderLogicChain();
   initTags();
+
+  /* ========== 220万案例 · ECharts 桑基图 ========== */
+  let chart220wInstance = null;
+  let chart220wResizeBound = false;
+
+  function isCase220wVisible() {
+    const block = document.getElementById("case-220w");
+    if (!block) return false;
+    return block.classList.contains("visible") && block.style.display !== "none";
+  }
+
+  let echartsLoadPromise = null;
+
+  function loadEchartsScript() {
+    if (typeof echarts !== "undefined") return Promise.resolve();
+    if (echartsLoadPromise) return echartsLoadPromise;
+    echartsLoadPromise = new Promise(function (resolve, reject) {
+      const urls = [
+        "https://cdn.bootcdn.net/ajax/libs/echarts/5.5.0/echarts.min.js",
+        "https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"
+      ];
+      let i = 0;
+      function tryNext() {
+        if (typeof echarts !== "undefined") { resolve(); return; }
+        if (i >= urls.length) {
+          reject(new Error("echarts load failed"));
+          return;
+        }
+        const s = document.createElement("script");
+        s.src = urls[i++];
+        s.async = true;
+        s.onload = function () { resolve(); };
+        s.onerror = tryNext;
+        document.head.appendChild(s);
+      }
+      tryNext();
+    });
+    return echartsLoadPromise;
+  }
+
+  function getChart220wOption() {
+    const chartFont = '"PingFang SC", "Inter", system-ui, sans-serif';
+    const N = {
+      src: "旧口径 400万",
+      act: "有效激活设备 180万",
+      low: "仅开机一次 120万",
+      other: "其他差异 100万",
+      end: "真实活跃用户 22%"
+    };
+    return {
+      backgroundColor: "transparent",
+      textStyle: { fontFamily: chartFont },
+      tooltip: {
+        trigger: "item",
+        backgroundColor: "rgba(15, 23, 42, 0.95)",
+        borderColor: "rgba(255, 255, 255, 0.12)",
+        borderWidth: 1,
+        textStyle: { color: "#E5E7EB", fontSize: 12, fontFamily: chartFont },
+        formatter: function (p) {
+          if (p.dataType === "edge") {
+            return p.data.source + " → " + p.data.target + "<br/><b>" + p.data.value + " 万</b>";
+          }
+          return p.name.replace(/ /g, "<br/>");
+        }
+      },
+      series: [{
+        type: "sankey",
+        left: "4%",
+        right: "8%",
+        top: 20,
+        bottom: 12,
+        nodeWidth: 18,
+        nodeGap: 14,
+        layoutIterations: 16,
+        emphasis: { focus: "adjacency" },
+        lineStyle: { curveness: 0.5, opacity: 0.55 },
+        label: {
+          color: "#E5E7EB",
+          fontSize: 11,
+          fontFamily: chartFont,
+          formatter: function (p) { return p.name.replace(/ /g, "\n"); }
+        },
+        data: [
+          { name: N.src, itemStyle: { color: "#1E3A8A" }, depth: 0 },
+          { name: N.act, itemStyle: { color: "#10B981" }, depth: 1 },
+          { name: N.low, itemStyle: { color: "#F97316" }, depth: 1 },
+          { name: N.other, itemStyle: { color: "#9CA3AF" }, depth: 1 },
+          { name: N.end, itemStyle: { color: "#8B5CF6" }, depth: 2 }
+        ],
+        links: [
+          { source: N.src, target: N.act, value: 180, lineStyle: { color: "rgba(16,185,129,0.5)" } },
+          { source: N.src, target: N.low, value: 120, lineStyle: { color: "rgba(249,115,22,0.5)" } },
+          { source: N.src, target: N.other, value: 100, lineStyle: { color: "rgba(156,163,175,0.55)" } },
+          { source: N.act, target: N.end, value: 180, lineStyle: { color: "rgba(139,92,246,0.55)" } }
+        ]
+      }]
+    };
+  }
+
+  function ensureChart220wMetrics() {
+    if (!isCase220wVisible()) return;
+
+    const el = document.getElementById("chart-220w-metrics");
+    const loading = document.getElementById("chart-220w-loading");
+    if (!el) return;
+
+    if (el.clientWidth < 40 || el.clientHeight < 40) {
+      requestAnimationFrame(ensureChart220wMetrics);
+      return;
+    }
+
+    loadEchartsScript().then(function () {
+      if (!isCase220wVisible()) return;
+
+      if (chart220wInstance) {
+        chart220wInstance.dispose();
+        chart220wInstance = null;
+      }
+
+      if (loading) loading.style.display = "none";
+
+      chart220wInstance = echarts.init(el, null, { renderer: "canvas" });
+      chart220wInstance.setOption(getChart220wOption());
+      el.classList.add("is-ready");
+
+      if (!chart220wResizeBound) {
+        chart220wResizeBound = true;
+        window.addEventListener("resize", function () {
+          if (chart220wInstance && isCase220wVisible()) chart220wInstance.resize();
+        });
+      }
+      chart220wInstance.resize();
+    }).catch(function () {
+      if (loading) {
+        loading.textContent = "图表库加载失败，请检查网络后刷新";
+        loading.style.color = "#F87171";
+      }
+    });
+  }
+
+  const _showCaseOrig = showCase;
+  showCase = function (caseId) {
+    _showCaseOrig(caseId);
+    if (caseId === "case-220w") {
+      setTimeout(ensureChart220wMetrics, 380);
+    }
+  };
+
+  (function observeChart220w() {
+    const chartEl = document.getElementById("chart-220w-metrics");
+    const caseEl = document.getElementById("case-220w");
+    if (!chartEl || !caseEl) return;
+
+    const io = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (en) {
+          if (en.isIntersecting && isCase220wVisible()) ensureChart220wMetrics();
+        });
+      },
+      { threshold: 0.15 }
+    );
+    io.observe(chartEl);
+
+    const mo = new MutationObserver(function () {
+      if (isCase220wVisible()) ensureChart220wMetrics();
+    });
+    mo.observe(caseEl, { attributes: true, attributeFilter: ["style", "class"] });
+  })();
+
   </script>
   <!--
   简历优化附录（用户文档第五节）：
